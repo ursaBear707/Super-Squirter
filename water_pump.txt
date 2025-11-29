@@ -1,0 +1,65 @@
+/**
+ * Water Pump Timing Control using a Dual-Input Motor Driver
+ * * This sketch controls a DC water pump connected to a motor driver chip 
+ * (like the TA6586) which uses two inputs for direction control.
+ * * Wiring:
+ * - Pump Forwards Input (Pumps out water) -> Arduino Digital Pin 10
+ * - Pump Backwards Input (Used for reverse/stopping) -> Arduino Digital Pin 9
+ * - Ensure the motor driver is correctly powered by an external source 
+ * as per the SunFounder tutorial documentation.
+ * * Sequence:
+ * 1. Wait (Delay) for 3 seconds.
+ * 2. Pump water out (Activate Pin 10) for 5 seconds.
+ * 3. Stop the pump (Deactivate both pins).
+ */
+
+// Define the pins connected to the motor driver inputs
+const int forwardsPin = 9; // Input to drive the pump "forwards" (pumps water out)
+const int backwardsPin = 11; // Input for "backwards" direction (kept LOW to ensure one direction)
+
+void setup() {
+  // Set the motor driver control pins as outputs
+  pinMode(forwardsPin, OUTPUT);
+  pinMode(backwardsPin, OUTPUT);
+
+  // Initialize the pump to the OFF state. 
+  // For TA6586, setting both inputs LOW ensures the motor is stopped.
+  digitalWrite(forwardsPin, LOW);
+  digitalWrite(backwardsPin, LOW);
+
+  // Optional: Start serial communication for debugging
+  Serial.begin(9600);
+  Serial.println("Water Pump Control Initialized.");
+}
+
+void loop() {
+  // --- Step 1: Pause (Wait for 3 seconds) ---
+  Serial.println("Pausing for 3 seconds...");
+  // The delay function pauses the program execution for the specified milliseconds.
+  delay(3000); 
+
+  // --- Step 2: Pump Out Water (Run for 5 seconds) ---
+  Serial.println("Pumping water out (5 seconds)...");
+  
+  // Set the forwards pin HIGH to activate the pump in the desired direction
+  digitalWrite(forwardsPin, HIGH);
+  // Keep the backwards pin LOW to ensure it runs in the "forwards" direction
+  digitalWrite(backwardsPin, LOW); 
+  
+  // Keep the pump running for 5 seconds (5000 milliseconds)
+  delay(5000);
+
+  // --- Step 3: Stop the Pump ---
+  Serial.println("Stopping the pump...");
+  
+  // Set both control pins LOW to stop the motor (brake/coast mode, depending on driver)
+  digitalWrite(forwardsPin, LOW);
+  digitalWrite(backwardsPin, LOW);
+
+  Serial.println("Cycle complete. Restarting loop.");
+
+  // Note: Since this is in the main loop(), the entire process (Wait -> Run -> Stop)
+  // will repeat indefinitely. If you only want it to run once, you would wrap
+  // the 'loop' function content in an 'if (false)' or remove the main loop logic
+  // and put it all inside 'setup()'.
+}
