@@ -1,0 +1,116 @@
+// Two-Wheel Mobility Test for Continuous Servos (Left Pin 7, Right Pin 8)
+// This test focuses on Forward, Backward, and Right Pivot movements.
+// Speed trims have been applied to the Right Wheel constants (R_) to achieve straight driving.
+
+#include <Servo.h> // Include the standard Servo library
+
+// --- Pin Definitions ---
+const int PIN_L = 7; // Left Wheel
+const int PIN_R = 8; // Right Wheel
+
+// --- Servo Objects ---
+Servo servoL; // Left Wheel Servo
+Servo servoR; // Right Wheel Servo
+
+// --- Movement Constants ---
+const int STOP = 90;
+
+// FORWARD & BACKWARD DEFINITIONS:
+// Left Wheel speeds are set normally.
+const int L_FULL_FORWARD = 170;
+const int L_SLOW_FORWARD = 130;
+const int L_BACKWARD = 10;
+
+// Right Wheel speeds are "trimmed" (moved closer to 90) to slow them down slightly.
+const int R_FULL_FORWARD = 20;
+const int R_SLOW_FORWARD = 60;
+const int R_BACKWARD = 160; // Right Wheel Backward Rotation (Adjusted from 170 to 160)
+
+const int DRIVE_TIME_MS = 10000; // Drive/Move time (10 seconds)
+const int PIVOT_TIME_MS = 2000; // Pivot time (2 seconds)
+const int PAUSE_TIME_MS = 1000; // Pause time (1 second)
+
+// --- Core Movement Functions ---
+
+/**
+ * Commands both motors to move straight forward (at SLOWER speed).
+ */
+void moveForward() {
+  servoL.write(L_SLOW_FORWARD); // Left: 130 (Faster)
+  servoR.write(R_SLOW_FORWARD); // Right: 60 (Slower, for straight line)
+  Serial.println("ACTION: Moving Forward (Slow Speed, Right Wheel Trimmed).");
+}
+
+/**
+ * Commands both motors to move straight backward (at FULL speed).
+ */
+void moveBackward() {
+  servoL.write(L_BACKWARD);
+  servoR.write(R_BACKWARD); // Right: 160 (Slower, for straight line)
+  Serial.println("ACTION: Moving Backward (Full Speed, Right Wheel Trimmed).");
+}
+
+/**
+ * Pivots the robot on the Right Wheel (at FULL speed).
+ * Left Wheel moves forward, Right Wheel stops (STOP).
+ */
+void pivotRight() {
+  servoL.write(L_FULL_FORWARD);
+  servoR.write(STOP); 
+  Serial.println("ACTION: Pivoting Right (Left Wheel Active).");
+}
+
+/**
+ * Stops both servo motors.
+ */
+void stopMotors() {
+  servoL.write(STOP);
+  servoR.write(STOP);
+  Serial.println("ACTION: Stopping Motors.");
+}
+
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("--- Two-Wheel Mobility Test Started (L:7, R:8) ---");
+
+  // 1. Attach Servos to Pins
+  servoL.attach(PIN_L);
+  servoR.attach(PIN_R);
+  
+  // 2. Initialize Motors to STOP
+  stopMotors(); 
+  Serial.println("Servos attached and initialized to STOP.");
+  delay(PAUSE_TIME_MS);
+}
+
+void loop() {
+  // --- Mobility Sequence ---
+
+  // 1. Move Forward (10 seconds) - Slower Speed
+  moveForward();
+  Serial.println("-> Driving Forward for 10 seconds.");
+  delay(DRIVE_TIME_MS);
+  
+  // Pause (1 second)
+  stopMotors();
+  delay(PAUSE_TIME_MS); 
+
+  // 2. Move Backward (2 seconds) - Full Speed
+  moveBackward();
+  delay(DRIVE_TIME_MS);
+  
+  // Pause (1 second)
+  stopMotors();
+  delay(PAUSE_TIME_MS);
+
+  // 3. Pivot Right (2 seconds) - Full Speed
+  pivotRight();
+  delay(PIVOT_TIME_MS);
+  
+  // Pause (1 second)
+  stopMotors();
+  delay(PAUSE_TIME_MS);
+
+  Serial.println("--- Cycle Complete. Repeating Sequence. ---");
+}
